@@ -33,6 +33,7 @@ export class MermaidViewer {
 	private readonly abortController: AbortController;
 	private readonly contentSize: Size;
 	private readonly originalNodes: Node[];
+	private readonly readingActionsGroup: HTMLElement;
 	private readonly root: HTMLElement;
 	private readonly services: MermaidViewerServices;
 	private readonly source: string | undefined;
@@ -83,7 +84,9 @@ export class MermaidViewer {
 		this.stage.style.height = `${this.contentSize.height}px`;
 
 		for (const node of this.originalNodes) this.stage.appendChild(node);
-		this.viewport.append(this.stage, this.createToolbar());
+		const { toolbar, readingActionsGroup } = this.createToolbar();
+		this.readingActionsGroup = readingActionsGroup;
+		this.viewport.append(this.stage, toolbar);
 		root.appendChild(this.viewport);
 
 		this.registerViewportEvents();
@@ -115,6 +118,7 @@ export class MermaidViewer {
 	enterFullscreen(host: HTMLElement): void {
 		if (this.fullscreenPlaceholder) return;
 
+		this.readingActionsGroup.hidden = true;
 		this.fullscreenPlaceholder = this.root.ownerDocument.createComment(
 			'mermaid-viewer-viewport',
 		);
@@ -136,6 +140,7 @@ export class MermaidViewer {
 		this.fullscreenPlaceholder.remove();
 		this.fullscreenPlaceholder = undefined;
 		this.viewport.classList.remove('is-fullscreen');
+		this.readingActionsGroup.hidden = false;
 		this.scheduleReset();
 	}
 
@@ -162,11 +167,26 @@ export class MermaidViewer {
 		delete this.root.dataset.mermaidViewerEnhanced;
 	}
 
-	private createToolbar(): HTMLElement {
+	private createToolbar(): {
+		toolbar: HTMLElement;
+		readingActionsGroup: HTMLElement;
+	} {
 		const toolbar = this.root.ownerDocument.createElement('div');
 		toolbar.className = 'mermaid-viewer-toolbar';
 		toolbar.setAttribute('role', 'toolbar');
 		toolbar.setAttribute('aria-label', 'Mermaid 图表工具');
+
+		const readingActionsGroup = this.createButtonGroup([
+			this.createButton(
+				'复制 Mermaid 源码',
+				'copy',
+				() => void this.copySource(),
+				this.source === undefined,
+			),
+			this.createButton('全屏查看', 'maximize', () => {
+				this.services.onFullscreen(this);
+			}),
+		]);
 
 		toolbar.append(
 			this.createButtonGroup([
@@ -180,20 +200,10 @@ export class MermaidViewer {
 				this.createButton('向下平移', 'arrow-down', () => this.pan(0, -PAN_STEP)),
 				this.createButton('向右平移', 'arrow-right', () => this.pan(-PAN_STEP, 0)),
 			]),
-			this.createButtonGroup([
-				this.createButton(
-					'复制 Mermaid 源码',
-					'copy',
-					() => void this.copySource(),
-					this.source === undefined,
-				),
-				this.createButton('全屏查看', 'maximize', () => {
-					this.services.onFullscreen(this);
-				}),
-			]),
+			readingActionsGroup,
 		);
 
-		return toolbar;
+		return { toolbar, readingActionsGroup };
 	}
 
 	private createButtonGroup(buttons: HTMLButtonElement[]): HTMLElement {

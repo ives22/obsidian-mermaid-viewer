@@ -90,9 +90,26 @@ describe('MermaidViewer', () => {
 		viewer.reset();
 
 		const stage = root.querySelector<HTMLElement>('.mermaid-viewer-stage');
+		const copyButton = root.querySelector<HTMLButtonElement>(
+			'[aria-label="复制 Mermaid 源码"]',
+		);
+		const fullscreenButton = root.querySelector<HTMLButtonElement>(
+			'[aria-label="全屏查看"]',
+		);
+		const readingActionsGroup = copyButton?.closest<HTMLElement>(
+			'.mermaid-viewer-toolbar-group',
+		);
 		expect(stage?.style.transform).toContain('translate3d(0px, 8px, 0) scale(1)');
+		expect(readingActionsGroup?.hidden).toBe(false);
 
 		viewer.enterFullscreen(fullscreenHost);
+		expect(readingActionsGroup?.hidden).toBe(true);
+		expect(fullscreenButton?.closest('.mermaid-viewer-toolbar-group')).toBe(
+			readingActionsGroup,
+		);
+		expect(
+			fullscreenHost.querySelector<HTMLButtonElement>('[aria-label="放大"]')?.hidden,
+		).toBe(false);
 		const fullscreenViewport = fullscreenHost.querySelector<HTMLElement>(
 			'.mermaid-viewer-viewport',
 		);
@@ -118,6 +135,7 @@ describe('MermaidViewer', () => {
 		viewer.reset();
 
 		expect(stage?.style.transform).toContain('translate3d(0px, 8px, 0) scale(1)');
+		expect(readingActionsGroup?.hidden).toBe(false);
 	});
 
 	it('reduces fullscreen padding for a compact viewport', () => {
