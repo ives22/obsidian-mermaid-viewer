@@ -1,18 +1,19 @@
-import { Plugin } from 'obsidian';
-import { collectMermaidTargets } from './markdown';
-import { MermaidViewerRenderChild } from './mermaid-render-child';
+import { MarkdownView, Plugin } from 'obsidian';
+import { MermaidSectionRenderChild } from './mermaid-section-render-child';
 
 export default class MermaidViewerPlugin extends Plugin {
 	onload(): void {
 		this.registerMarkdownPostProcessor((element, context) => {
 			const markdown = context.getSectionInfo(element)?.text;
-			const targets = collectMermaidTargets(element, markdown);
-
-			for (const target of targets) {
-				context.addChild(
-					new MermaidViewerRenderChild(this.app, target.element, target.source),
-				);
-			}
+			context.addChild(new MermaidSectionRenderChild(this.app, element, markdown));
 		}, 100);
+
+		this.app.workspace.onLayoutReady(() => {
+			this.app.workspace.iterateAllLeaves((leaf) => {
+				if (!(leaf.view instanceof MarkdownView)) return;
+				if (leaf.view.getMode() !== 'preview') return;
+				leaf.view.previewMode.rerender(true);
+			});
+		});
 	}
 }

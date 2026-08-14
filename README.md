@@ -37,10 +37,11 @@ npm install
 npm run build
 ```
 
-Link or copy the repository to your vault plugin directory:
+Copy the built plugin files to your vault plugin directory:
 
 ```bash
-ln -s "$(pwd)" /path/to/vault/.obsidian/plugins/mermaid-viewer
+mkdir -p /path/to/vault/.obsidian/plugins/mermaid-viewer
+cp manifest.json main.js styles.css /path/to/vault/.obsidian/plugins/mermaid-viewer/
 ```
 
 Reload Obsidian, then enable **Mermaid Viewer** under **Community plugins**.
