@@ -1,0 +1,10 @@
+{
+	"id": "mermaid-viewer",
+	"name": "Mermaid Viewer",
+	"version": "0.1.0",
+	"minAppVersion": "1.6.0",
+	"description": "Adds zoom, pan, reset, copy, and fullscreen controls to Mermaid diagrams.",
+	"author": "ives",
+	"authorUrl": "https://github.com/ives22",
+	"isDesktopOnly": false
+}
