@@ -15,6 +15,6 @@ export function collectMermaidTargets(
 
 	const sources = markdown === undefined ? [] : extractMermaidBlocks(markdown);
 	return elements
-		.filter((element) => element.dataset.mermaidViewerEnhanced !== 'true')
-		.map((element, index) => ({ element, source: sources[index] }));
+		.map((element, index) => ({ element, source: sources[index] }))
+		.filter((target) => target.element.dataset.mermaidViewerEnhanced === undefined);
 }

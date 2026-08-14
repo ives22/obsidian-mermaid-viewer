@@ -6,7 +6,8 @@ interaction layer around the generated SVG.
 
 ## Features
 
-- Zoom from 50% to 800%, anchored to the viewport center or pointer position
+- Zoom from the fitted scale (50% for normal diagrams) to 800%, anchored to the
+  viewport center or pointer position
 - Pan by dragging, toolbar direction buttons, or touch input
 - Reset and fit the diagram to its viewport
 - Copy the original Mermaid source from reading view

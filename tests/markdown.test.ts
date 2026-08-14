@@ -54,4 +54,27 @@ describe('collectMermaidTargets', () => {
 
 		expect(collectMermaidTargets(section, '')).toEqual([]);
 	});
+
+	it('preserves source indexes when an earlier diagram is pending', () => {
+		const section = document.createElement('section');
+		const first = document.createElement('div');
+		first.className = 'mermaid';
+		first.dataset.mermaidViewerEnhanced = 'pending';
+		const second = document.createElement('div');
+		second.className = 'mermaid';
+		section.append(first, second);
+
+		const markdown = [
+			'```mermaid',
+			'graph LR',
+			'```',
+			'```mermaid',
+			'graph TD',
+			'```',
+		].join('\n');
+
+		expect(collectMermaidTargets(section, markdown)).toEqual([
+			{ element: second, source: 'graph TD' },
+		]);
+	});
 });

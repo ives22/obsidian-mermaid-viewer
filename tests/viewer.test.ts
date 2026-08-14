@@ -53,6 +53,23 @@ describe('MermaidViewer', () => {
 		expect(stage?.style.transform).toContain('translate3d(100px, 100px, 0) scale(1)');
 	});
 
+	it('does not jump up to 50% when fit-to-view needs a smaller scale', () => {
+		const root = createDiagram();
+		const viewer = new MermaidViewer(root, 'flowchart LR\nA --> B', {
+			copyText: vi.fn(),
+			notify: vi.fn(),
+			onFullscreen: vi.fn(),
+			setIcon: vi.fn(),
+		});
+		setViewportSize(root, 400, 300);
+		viewer.reset();
+
+		const stage = root.querySelector<HTMLElement>('.mermaid-viewer-stage');
+		expect(stage?.style.transform).toContain('scale(0.44)');
+		root.querySelector<HTMLButtonElement>('[aria-label="缩小"]')?.click();
+		expect(stage?.style.transform).toContain('scale(0.44)');
+	});
+
 	it('copies Mermaid source and opens fullscreen through injected services', async () => {
 		const root = createDiagram();
 		const copyText = vi.fn().mockResolvedValue(undefined);

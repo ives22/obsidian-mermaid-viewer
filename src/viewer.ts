@@ -27,7 +27,7 @@ interface DragState {
 }
 
 export class MermaidViewer {
-	private readonly abortController = new AbortController();
+	private readonly abortController: AbortController;
 	private readonly contentSize: Size;
 	private readonly originalNodes: Node[];
 	private readonly root: HTMLElement;
@@ -39,6 +39,7 @@ export class MermaidViewer {
 	private destroyed = false;
 	private dragState: DragState | undefined;
 	private fullscreenPlaceholder: Comment | undefined;
+	private minimumScale = MIN_SCALE;
 	private resizeObserver: ResizeObserver | undefined;
 	private state: TransformState = { x: 0, y: 0, scale: 1 };
 	private fitted = true;
@@ -48,6 +49,10 @@ export class MermaidViewer {
 		source: string | undefined,
 		services: MermaidViewerServices,
 	) {
+		const window = root.ownerDocument.defaultView;
+		if (!window) throw new Error('The Mermaid diagram must belong to a window');
+		this.abortController = new window.AbortController();
+
 		const svg = root.querySelector<SVGSVGElement>('svg');
 		if (!svg) throw new Error('A rendered Mermaid SVG is required');
 		if (root.dataset.mermaidViewerEnhanced === 'true') {
@@ -89,6 +94,7 @@ export class MermaidViewer {
 			this.contentSize,
 			FIT_PADDING,
 		);
+		this.minimumScale = Math.min(MIN_SCALE, this.state.scale);
 		this.fitted = true;
 		this.applyTransform();
 	}
@@ -225,9 +231,10 @@ export class MermaidViewer {
 	}
 
 	private registerResizeObserver(): void {
-		if (typeof ResizeObserver === 'undefined') return;
+		const ResizeObserverClass = this.root.ownerDocument.defaultView?.ResizeObserver;
+		if (!ResizeObserverClass) return;
 
-		this.resizeObserver = new ResizeObserver(() => {
+		this.resizeObserver = new ResizeObserverClass(() => {
 			if (this.fitted) this.reset();
 		});
 		this.resizeObserver.observe(this.viewport);
@@ -289,7 +296,7 @@ export class MermaidViewer {
 			this.state,
 			this.state.scale + delta,
 			zoomAnchor,
-			{ min: MIN_SCALE, max: MAX_SCALE },
+			{ min: this.minimumScale, max: MAX_SCALE },
 		);
 		this.fitted = false;
 		this.applyTransform();

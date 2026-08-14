@@ -13,6 +13,7 @@ export class MermaidViewerRenderChild extends MarkdownRenderChild {
 		private readonly source: string | undefined,
 	) {
 		super(containerEl);
+		containerEl.dataset.mermaidViewerEnhanced = 'pending';
 	}
 
 	onload(): void {
@@ -33,6 +34,9 @@ export class MermaidViewerRenderChild extends MarkdownRenderChild {
 		this.observer?.disconnect();
 		this.fullscreenModal?.close();
 		this.viewer?.destroy();
+		if (this.containerEl.dataset.mermaidViewerEnhanced === 'pending') {
+			delete this.containerEl.dataset.mermaidViewerEnhanced;
+		}
 		this.observer = undefined;
 		this.fullscreenModal = undefined;
 		this.viewer = undefined;
