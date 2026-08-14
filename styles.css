@@ -1,1 +1,128 @@
-/* Mermaid Viewer styles are added with the interactive viewer component. */
+.mermaid-viewer {
+	position: relative;
+	display: block;
+	width: 100%;
+	max-width: none;
+}
+
+.mermaid-viewer-viewport {
+	position: relative;
+	width: 100%;
+	height: var(--mermaid-viewer-height, 320px);
+	min-height: 180px;
+	overflow: hidden;
+	box-sizing: border-box;
+	cursor: grab;
+	touch-action: none;
+	contain: layout paint;
+}
+
+.mermaid-viewer-viewport.is-dragging {
+	cursor: grabbing;
+	user-select: none;
+}
+
+.mermaid-viewer-viewport.is-fullscreen {
+	height: 100%;
+	min-height: 0;
+}
+
+.mermaid-viewer-stage {
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform-origin: 0 0;
+	will-change: transform;
+}
+
+.mermaid-viewer-stage > svg {
+	display: block;
+	width: 100% !important;
+	height: 100% !important;
+	max-width: none !important;
+}
+
+.mermaid-viewer-toolbar {
+	position: absolute;
+	top: var(--size-4-2);
+	inset-inline-end: var(--size-4-2);
+	z-index: 10;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: var(--size-4-1);
+	max-width: calc(100% - var(--size-4-4));
+}
+
+.mermaid-viewer-toolbar-group {
+	display: flex;
+	overflow: hidden;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	box-shadow: var(--shadow-s);
+}
+
+.mermaid-viewer-toolbar-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	min-width: 30px;
+	padding: 6px;
+	color: var(--text-muted);
+	background: transparent;
+	border: 0;
+	border-inline-end: 1px solid var(--background-modifier-border);
+	border-radius: 0;
+	box-shadow: none;
+	cursor: pointer;
+	--icon-size: 16px;
+}
+
+.mermaid-viewer-toolbar-button:last-child {
+	border-inline-end: 0;
+}
+
+.mermaid-viewer-toolbar-button:hover,
+.mermaid-viewer-toolbar-button:focus-visible {
+	color: var(--text-normal);
+	background: var(--interactive-hover);
+}
+
+.mermaid-viewer-toolbar-button:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.modal.mermaid-viewer-modal {
+	width: min(96vw, 1600px);
+	height: 92vh;
+	max-width: none;
+	padding: 0;
+	border-radius: var(--radius-s);
+}
+
+.mermaid-viewer-modal .modal-content {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.mermaid-viewer-fullscreen-host {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+@media (max-width: 600px) {
+	.mermaid-viewer-toolbar {
+		inset-inline: var(--size-4-2);
+	}
+
+	.modal.mermaid-viewer-modal {
+		width: 100vw;
+		height: 100vh;
+	}
+}
