@@ -76,7 +76,7 @@ describe('MermaidViewer', () => {
 		expect(stage?.style.transform).toContain('translate3d(200px, 8px, 0) scale(1)');
 	});
 
-	it('fits the diagram to fullscreen and restores its reading-mode size on exit', () => {
+	it('fits the diagram with responsive padding in a wide fullscreen viewport', () => {
 		const root = createDiagram({ width: 600, height: 300 });
 		const fullscreenHost = document.createElement('div');
 		document.body.appendChild(fullscreenHost);
@@ -103,17 +103,47 @@ describe('MermaidViewer', () => {
 		});
 		viewer.reset();
 
-		expect(stage?.style.transform).toContain('translate3d(0px, 100px, 0) scale(2)');
+		expect(stage?.style.transform).toContain(
+			'translate3d(32px, 116px, 0) scale(1.893)',
+		);
 		fullscreenHost.querySelector<HTMLButtonElement>('[aria-label="放大"]')?.click();
-		expect(stage?.style.transform).toContain('translate3d(-30px, 85px, 0) scale(2.1)');
+		expect(stage?.style.transform).toContain('scale(1.993)');
 		fullscreenHost.querySelector<HTMLButtonElement>('[aria-label="重置视图"]')?.click();
-		expect(stage?.style.transform).toContain('translate3d(0px, 100px, 0) scale(2)');
+		expect(stage?.style.transform).toContain(
+			'translate3d(32px, 116px, 0) scale(1.893)',
+		);
 
 		viewer.exitFullscreen();
 		setViewportSize(root, 600, 316);
 		viewer.reset();
 
 		expect(stage?.style.transform).toContain('translate3d(0px, 8px, 0) scale(1)');
+	});
+
+	it('reduces fullscreen padding for a compact viewport', () => {
+		const root = createDiagram({ width: 600, height: 300 });
+		const fullscreenHost = document.createElement('div');
+		document.body.appendChild(fullscreenHost);
+		const viewer = new MermaidViewer(root, 'flowchart LR\nA --> B', {
+			copyText: vi.fn(),
+			notify: vi.fn(),
+			onFullscreen: vi.fn(),
+			setIcon: vi.fn(),
+		});
+
+		viewer.enterFullscreen(fullscreenHost);
+		const fullscreenViewport = fullscreenHost.querySelector<HTMLElement>(
+			'.mermaid-viewer-viewport',
+		);
+		if (!fullscreenViewport) throw new Error('Fullscreen viewport was not created');
+		Object.defineProperties(fullscreenViewport, {
+			clientWidth: { configurable: true, value: 360 },
+			clientHeight: { configurable: true, value: 240 },
+		});
+		viewer.reset();
+
+		const stage = fullscreenHost.querySelector<HTMLElement>('.mermaid-viewer-stage');
+		expect(stage?.style.transform).toContain('translate3d(12px, 36px, 0) scale(0.56)');
 	});
 
 	it('does not jump up to 50% when fit-to-view needs a smaller scale', () => {

@@ -14,8 +14,8 @@ interaction layer around the generated SVG.
 - Reset to the original rendered size in reading view and fit the available
   space in fullscreen
 - Copy the original Mermaid source from reading view
-- Open the same SVG fitted to an Obsidian fullscreen modal without cloning SVG
-  IDs
+- Open the same SVG in a responsive, GitHub-style fullscreen modal with adaptive
+  diagram padding and without cloning SVG IDs
 - Follow Obsidian theme variables on desktop and mobile
 - Preserve and restore Obsidian's original Mermaid DOM when the plugin unloads
 

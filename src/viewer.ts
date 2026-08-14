@@ -10,7 +10,10 @@ const MIN_SCALE = 0.5;
 const MAX_SCALE = 8;
 const ZOOM_STEP = 0.1;
 const PAN_STEP = 100;
-const FIT_PADDING = 0;
+const READING_FIT_PADDING = 0;
+const MIN_FULLSCREEN_FIT_PADDING = 12;
+const MAX_FULLSCREEN_FIT_PADDING = 32;
+const FULLSCREEN_FIT_PADDING_RATIO = 0.04;
 
 export interface MermaidViewerServices {
 	copyText: (text: string) => Promise<void>;
@@ -89,13 +92,19 @@ export class MermaidViewer {
 	}
 
 	reset(): void {
-		const maxScale = this.viewport.classList.contains('is-fullscreen')
-			? MAX_SCALE
-			: 1;
+		const viewportSize = {
+			width: this.viewport.clientWidth,
+			height: this.viewport.clientHeight,
+		};
+		const isFullscreen = this.viewport.classList.contains('is-fullscreen');
+		const maxScale = isFullscreen ? MAX_SCALE : 1;
+		const fitPadding = isFullscreen
+			? calculateFullscreenFitPadding(viewportSize)
+			: READING_FIT_PADDING;
 		this.state = fitTransform(
-			{ width: this.viewport.clientWidth, height: this.viewport.clientHeight },
+			viewportSize,
 			this.contentSize,
-			FIT_PADDING,
+			fitPadding,
 			maxScale,
 		);
 		this.minimumScale = Math.min(MIN_SCALE, this.state.scale);
@@ -379,6 +388,15 @@ function calculateViewportHeight(svg: SVGSVGElement, content: Size): number {
 	const renderedHeight = svg.getBoundingClientRect().height;
 	const preferredHeight = renderedHeight > 0 ? renderedHeight : content.height;
 	return Math.ceil(Math.min(640, Math.max(180, preferredHeight + 16)));
+}
+
+function calculateFullscreenFitPadding(viewport: Size): number {
+	const responsivePadding =
+		Math.min(viewport.width, viewport.height) * FULLSCREEN_FIT_PADDING_RATIO;
+	return Math.min(
+		MAX_FULLSCREEN_FIT_PADDING,
+		Math.max(MIN_FULLSCREEN_FIT_PADDING, responsivePadding),
+	);
 }
 
 function roundTransformValue(value: number): number {
