@@ -58,4 +58,15 @@ describe('diagram transforms', () => {
 			fitTransform({ width: 1_000, height: 600 }, { width: 800, height: 400 }, 24),
 		).toEqual({ x: 100, y: 100, scale: 1 });
 	});
+
+	it('enlarges a diagram when the fitting scale explicitly allows it', () => {
+		expect(
+			fitTransform(
+				{ width: 1_200, height: 800 },
+				{ width: 600, height: 300 },
+				0,
+				8,
+			),
+		).toEqual({ x: 0, y: 100, scale: 2 });
+	});
 });

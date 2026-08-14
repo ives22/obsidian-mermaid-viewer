@@ -89,10 +89,14 @@ export class MermaidViewer {
 	}
 
 	reset(): void {
+		const maxScale = this.viewport.classList.contains('is-fullscreen')
+			? MAX_SCALE
+			: 1;
 		this.state = fitTransform(
 			{ width: this.viewport.clientWidth, height: this.viewport.clientHeight },
 			this.contentSize,
 			FIT_PADDING,
+			maxScale,
 		);
 		this.minimumScale = Math.min(MIN_SCALE, this.state.scale);
 		this.fitted = true;

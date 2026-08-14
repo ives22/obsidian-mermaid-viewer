@@ -49,6 +49,7 @@ export function fitTransform(
 	viewport: Size,
 	content: Size,
 	padding: number,
+	maxScale = 1,
 ): TransformState {
 	if (viewport.width <= 0 || viewport.height <= 0) {
 		return { x: 0, y: 0, scale: 1 };
@@ -59,10 +60,11 @@ export function fitTransform(
 	}
 
 	const safePadding = Math.max(0, padding);
+	const safeMaxScale = Number.isFinite(maxScale) && maxScale > 0 ? maxScale : 1;
 	const availableWidth = Math.max(1, viewport.width - safePadding * 2);
 	const availableHeight = Math.max(1, viewport.height - safePadding * 2);
 	const scale = Math.min(
-		1,
+		safeMaxScale,
 		availableWidth / content.width,
 		availableHeight / content.height,
 	);

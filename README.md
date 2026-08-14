@@ -11,9 +11,11 @@ interaction layer around the generated SVG.
 - Zoom from the fitted scale to 800%, anchored to the viewport center or pointer
   position
 - Pan by dragging, toolbar direction buttons, or touch input
-- Reset and fit the diagram to its viewport
+- Reset to the original rendered size in reading view and fit the available
+  space in fullscreen
 - Copy the original Mermaid source from reading view
-- Open the same SVG in an Obsidian fullscreen modal without cloning SVG IDs
+- Open the same SVG fitted to an Obsidian fullscreen modal without cloning SVG
+  IDs
 - Follow Obsidian theme variables on desktop and mobile
 - Preserve and restore Obsidian's original Mermaid DOM when the plugin unloads
 
