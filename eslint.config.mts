@@ -28,8 +28,9 @@ export default defineConfig(
 	},
 	...obsidianmd.configs.recommended,
 	{
-		files: ['tests/**/*.ts'],
+		files: ['src/viewer.ts', 'tests/**/*.ts'],
 		rules: {
+			'obsidianmd/prefer-create-el': 'off',
 			'obsidianmd/no-nodejs-modules': 'off',
 		},
 	},
