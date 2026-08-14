@@ -6,8 +6,10 @@ interaction layer around the generated SVG.
 
 ## Features
 
-- Zoom from the fitted scale (50% for normal diagrams) to 800%, anchored to the
-  viewport center or pointer position
+- Preserve Obsidian's rendered Mermaid size by default and fit down only when
+  the pane is narrower
+- Zoom from the fitted scale to 800%, anchored to the viewport center or pointer
+  position
 - Pan by dragging, toolbar direction buttons, or touch input
 - Reset and fit the diagram to its viewport
 - Copy the original Mermaid source from reading view

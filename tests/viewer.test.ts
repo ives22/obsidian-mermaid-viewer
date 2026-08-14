@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MermaidViewer } from '../src/viewer';
 
-function createDiagram(): HTMLElement {
+function createDiagram(renderedSize?: { width: number; height: number }): HTMLElement {
 	const root = document.createElement('div');
 	root.className = 'mermaid';
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	svg.setAttribute('viewBox', '0 0 800 400');
+	if (renderedSize) {
+		vi.spyOn(svg, 'getBoundingClientRect').mockReturnValue(
+			new DOMRect(0, 0, renderedSize.width, renderedSize.height),
+		);
+	}
 	const diagram = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 	diagram.id = 'diagram';
 	svg.appendChild(diagram);
@@ -29,31 +34,66 @@ describe('MermaidViewer', () => {
 		document.body.replaceChildren();
 	});
 
-	it('adds controls and applies zoom, pan, and reset transforms', () => {
-		const root = createDiagram();
+	it('preserves the SVG rendered size as the default view', () => {
+		const root = createDiagram({ width: 1_000, height: 500 });
 		const viewer = new MermaidViewer(root, 'flowchart LR\nA --> B', {
 			copyText: vi.fn(),
 			notify: vi.fn(),
 			onFullscreen: vi.fn(),
 			setIcon: (element, icon) => element.setAttribute('data-icon', icon),
 		});
-		setViewportSize(root, 1_000, 600);
+		setViewportSize(root, 1_000, 516);
 		viewer.reset();
 
 		const stage = root.querySelector<HTMLElement>('.mermaid-viewer-stage');
-		expect(stage?.style.transform).toContain('translate3d(100px, 100px, 0) scale(1)');
+		expect(stage?.style.width).toBe('1000px');
+		expect(stage?.style.height).toBe('500px');
+		expect(stage?.style.transform).toContain('translate3d(0px, 8px, 0) scale(1)');
 
 		root.querySelector<HTMLButtonElement>('[aria-label="放大"]')?.click();
 		expect(stage?.style.transform).toContain('scale(1.1)');
 
 		root.querySelector<HTMLButtonElement>('[aria-label="向右平移"]')?.click();
-		expect(stage?.style.transform).toContain('translate3d(-40px, 80px, 0)');
+		expect(stage?.style.transform).toContain('translate3d(-150px, -17px, 0)');
 
 		root.querySelector<HTMLButtonElement>('[aria-label="重置视图"]')?.click();
-		expect(stage?.style.transform).toContain('translate3d(100px, 100px, 0) scale(1)');
+		expect(stage?.style.transform).toContain('translate3d(0px, 8px, 0) scale(1)');
+	});
+
+	it('keeps a small rendered diagram at its original size and centers it', () => {
+		const root = createDiagram({ width: 600, height: 300 });
+		const viewer = new MermaidViewer(root, 'flowchart LR\nA --> B', {
+			copyText: vi.fn(),
+			notify: vi.fn(),
+			onFullscreen: vi.fn(),
+			setIcon: vi.fn(),
+		});
+		setViewportSize(root, 1_000, 316);
+		viewer.reset();
+
+		const stage = root.querySelector<HTMLElement>('.mermaid-viewer-stage');
+		expect(stage?.style.width).toBe('600px');
+		expect(stage?.style.transform).toContain('translate3d(200px, 8px, 0) scale(1)');
 	});
 
 	it('does not jump up to 50% when fit-to-view needs a smaller scale', () => {
+		const root = createDiagram({ width: 800, height: 400 });
+		const viewer = new MermaidViewer(root, 'flowchart LR\nA --> B', {
+			copyText: vi.fn(),
+			notify: vi.fn(),
+			onFullscreen: vi.fn(),
+			setIcon: vi.fn(),
+		});
+		setViewportSize(root, 320, 240);
+		viewer.reset();
+
+		const stage = root.querySelector<HTMLElement>('.mermaid-viewer-stage');
+		expect(stage?.style.transform).toContain('scale(0.4)');
+		root.querySelector<HTMLButtonElement>('[aria-label="缩小"]')?.click();
+		expect(stage?.style.transform).toContain('scale(0.4)');
+	});
+
+	it('falls back to the SVG viewBox when rendered bounds are unavailable', () => {
 		const root = createDiagram();
 		const viewer = new MermaidViewer(root, 'flowchart LR\nA --> B', {
 			copyText: vi.fn(),
@@ -61,13 +101,13 @@ describe('MermaidViewer', () => {
 			onFullscreen: vi.fn(),
 			setIcon: vi.fn(),
 		});
-		setViewportSize(root, 400, 300);
+		setViewportSize(root, 1_000, 416);
 		viewer.reset();
 
 		const stage = root.querySelector<HTMLElement>('.mermaid-viewer-stage');
-		expect(stage?.style.transform).toContain('scale(0.44)');
-		root.querySelector<HTMLButtonElement>('[aria-label="缩小"]')?.click();
-		expect(stage?.style.transform).toContain('scale(0.44)');
+		expect(stage?.style.width).toBe('800px');
+		expect(stage?.style.height).toBe('400px');
+		expect(stage?.style.transform).toContain('translate3d(100px, 8px, 0) scale(1)');
 	});
 
 	it('copies Mermaid source and opens fullscreen through injected services', async () => {

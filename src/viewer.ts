@@ -10,7 +10,7 @@ const MIN_SCALE = 0.5;
 const MAX_SCALE = 8;
 const ZOOM_STEP = 0.1;
 const PAN_STEP = 100;
-const FIT_PADDING = 24;
+const FIT_PADDING = 0;
 
 export interface MermaidViewerServices {
 	copyText: (text: string) => Promise<void>;
@@ -348,6 +348,11 @@ export class MermaidViewer {
 }
 
 function measureSvg(svg: SVGSVGElement): Size {
+	const bounds = svg.getBoundingClientRect();
+	if (bounds.width > 0 && bounds.height > 0) {
+		return { width: bounds.width, height: bounds.height };
+	}
+
 	const viewBox = svg.getAttribute('viewBox')?.trim().split(/[\s,]+/).map(Number);
 	const viewBoxWidth = viewBox?.[2];
 	const viewBoxHeight = viewBox?.[3];
@@ -360,7 +365,6 @@ function measureSvg(svg: SVGSVGElement): Size {
 		return { width: viewBoxWidth, height: viewBoxHeight };
 	}
 
-	const bounds = svg.getBoundingClientRect();
 	return {
 		width: Math.max(1, bounds.width),
 		height: Math.max(1, bounds.height),
